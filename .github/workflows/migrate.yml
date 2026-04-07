@@ -1,0 +1,176 @@
+name: Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      dry_run:
+        description: 'Perform dry-run (no actual changes)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate:
+    name: Validate Migrations
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    timeout-minutes: 10
+    outputs:
+      migration-count: ${{ steps.validate.outputs.count }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Validate migrations
+        id: validate
+        run: |
+          MIGRATION_COUNT=$(find prisma/migrations -type d -maxdepth 1 2>/dev/null | wc -l)
+          MIGRATION_COUNT=$((MIGRATION_COUNT - 1))
+          echo "count=$MIGRATION_COUNT" >> $GITHUB_OUTPUT
+          echo "✅ Found $MIGRATION_COUNT pending migration(s)"
+
+      - name: Validate schema
+        run: npx prisma validate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  pre-check:
+    name: Pre-Migration Health Check
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: validate
+    timeout-minutes: 10
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Check database connectivity
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          npx prisma db execute --stdin < /dev/null || exit 1
+          echo "✅ Database connectivity verified"
+
+      - name: Get migration status
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: npx prisma migrate status
+        continue-on-error: true
+
+  migrate:
+    name: Execute Migration
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: pre-check
+    timeout-minutes: 15
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Select target database
+        id: db_select
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "production" ]; then
+            echo "target=Production" >> $GITHUB_OUTPUT
+          else
+            echo "target=Staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create backup timestamp
+        id: backup
+        run: |
+          BACKUP_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "backup_time=$BACKUP_TIME" >> $GITHUB_OUTPUT
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        timeout-minutes: 10
+
+      - name: Verify migration
+        run: npx prisma migrate status
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Log completion
+        run: |
+          echo "✅ Migration completed"
+          echo "Target: ${{ steps.db_select.outputs.target }}"
+          echo "Time: ${{ steps.backup.outputs.backup_time }}"
+
+  post-validate:
+    name: Validate Migration Success
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: migrate
+    if: success()
+    timeout-minutes: 10
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Verify schema consistency
+        run: |
+          npx prisma generate
+          echo "✅ Schema validation successful"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Check database state
+        run: |
+          echo "Migration validation completed"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}

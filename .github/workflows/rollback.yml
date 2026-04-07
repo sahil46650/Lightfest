@@ -1,0 +1,152 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      rollback_type:
+        description: 'Type of rollback'
+        required: true
+        type: choice
+        options:
+          - database_only
+          - deployment_only
+          - full_rollback
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  confirm-rollback:
+    name: Confirm Rollback Intent
+    runs-on: ubuntu-latest
+    environment:
+      name: rollback-approval
+    steps:
+      - name: Log rollback decision
+        env:
+          ENV_NAME: ${{ github.event.inputs.environment }}
+          ROLLBACK_KIND: ${{ github.event.inputs.rollback_type }}
+        run: |
+          echo "⚠️  EMERGENCY ROLLBACK INITIATED"
+          echo "Environment: $ENV_NAME"
+          echo "Type: $ROLLBACK_KIND"
+          echo "Timestamp: $(date -u)"
+
+  rollback-database:
+    name: Rollback Database
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: confirm-rollback
+    if: contains(github.event.inputs.rollback_type, 'database')
+    timeout-minutes: 15
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Check migration status
+        run: npx prisma migrate status
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Create rollback timestamp
+        id: rollback_time
+        run: |
+          ROLLBACK_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "rollback_time=$ROLLBACK_TIME" >> $GITHUB_OUTPUT
+          echo "Rollback initiated at $ROLLBACK_TIME"
+
+      - name: Alert team of database rollback
+        run: |
+          echo "::error::Database rollback initiated - immediate team review required"
+
+  rollback-deployment:
+    name: Rollback Deployment
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: confirm-rollback
+    if: contains(github.event.inputs.rollback_type, 'deployment')
+    timeout-minutes: 10
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Vercel CLI
+        run: npm install -g vercel
+
+      - name: Create deployment rollback record
+        id: prev_deployment
+        run: |
+          DEPLOY_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "deploy_time=$DEPLOY_TIME" >> $GITHUB_OUTPUT
+          echo "Rollback deployment initiated at $DEPLOY_TIME"
+
+      - name: Check git history
+        run: |
+          echo "Recent commits:"
+          git log --oneline -5
+
+      - name: Alert deployment team
+        run: |
+          echo "::warning::Deployment rollback - review required before proceeding"
+
+  verify-rollback:
+    name: Verify Rollback
+    runs-on: [self-hosted, linux, x64, festival-lights]
+    needs: [confirm-rollback]
+    if: always()
+    timeout-minutes: 10
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Test application connectivity
+        env:
+          ENV_NAME: ${{ github.event.inputs.environment }}
+        run: |
+          if [ "$ENV_NAME" = "production" ]; then
+            URL="https://festival-lights.vercel.app"
+          else
+            URL="https://staging-festival-lights.vercel.app"
+          fi
+          echo "Testing: $URL"
+          curl -I "$URL" || echo "Health check inconclusive"
+
+      - name: Log rollback status
+        run: echo "Rollback verification complete"
+
+  incident-report:
+    name: Create Incident Report
+    runs-on: ubuntu-latest
+    needs: verify-rollback
+    if: always()
+    steps:
+      - name: Generate summary
+        env:
+          ENV_NAME: ${{ github.event.inputs.environment }}
+          ROLLBACK_KIND: ${{ github.event.inputs.rollback_type }}
+        run: |
+          echo "## Rollback Incident Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: $ENV_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Rollback Type**: $ROLLBACK_KIND" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp**: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,36 @@
+name: Test Deploy with Conditions and Environments
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Build
+        run: echo "Build"
+
+  deploy-staging:
+    name: Deploy Staging
+    runs-on: [self-hosted, Linux, X64]
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: staging
+    steps:
+      - name: Deploy
+        run: echo "Deploy"
+
+  deploy-production:
+    name: Deploy Production
+    runs-on: [self-hosted, Linux, X64]
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    steps:
+      - name: Deploy
+        run: echo "Deploy"

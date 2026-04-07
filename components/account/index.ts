@@ -1,0 +1,6 @@
+export { ProfileCard } from './profile-card'
+export { QuickActions } from './quick-actions'
+export { RecentBookings } from './recent-bookings'
+export { BookingsTable } from './bookings-table'
+export { EditProfileForm } from './edit-profile-form'
+export { ChangePasswordForm } from './change-password-form'

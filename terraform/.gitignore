@@ -1,0 +1,52 @@
+# Terraform variable files with secrets
+terraform.tfvars
+terraform.tfvars.json
+*.tfvars.json
+*.auto.tfvars
+
+# Terraform state files (local backend)
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Terraform directories
+.terraform/
+.terraform.d/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Crash files
+crash.log
+crash.*.log
+
+# Local development files
+*.bak
+*.backup
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Temporary files
+*.tmp
+*.temp
+.direnv
+.envrc
+
+# Terraform Cloud/Enterprise
+.terraform.cloud
+cli-config.tfrc
+
+# Environment-specific files (if using env vars instead of files)
+.env
+.env.local
+.env.*.local

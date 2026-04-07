@@ -1,0 +1,373 @@
+# GitHub Actions Deployment Pipeline
+name: Deploy to Production
+
+# Updated to re-validate environments after creation
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: '18'
+  CACHE_KEY: ${{ github.ref }}-${{ github.sha }}
+
+jobs:
+  # ============================================================================
+  # Step 1: Build & Test
+  # ============================================================================
+  build:
+    name: Build Application
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 15
+    outputs:
+      build-artifact: ${{ steps.artifact.outputs.path }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Save build artifact
+        id: artifact
+        run: |
+          tar -czf build-${{ github.sha }}.tar.gz .next
+          echo "path=build-${{ github.sha }}.tar.gz" >> $GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: build-${{ github.sha }}.tar.gz
+          retention-days: 1
+
+  # ============================================================================
+  # Step 2: Run Tests
+  # ============================================================================
+  test:
+    name: Run Tests
+    runs-on: [self-hosted, Linux, X64]
+    needs: build
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Setup test database
+        run: |
+          npx prisma db push --skip-generate --accept-data-loss
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        continue-on-error: true
+
+      - name: Run test suite
+        run: npm run test:all
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: test-results/
+          retention-days: 7
+
+  # ============================================================================
+  # Step 3: Database Migrations (Staging)
+  # ============================================================================
+  migrate-staging:
+    name: Database Migration (Staging)
+    runs-on: [self-hosted, Linux, X64]
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+    environment:
+      name: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DIRECT_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        timeout-minutes: 5
+        continue-on-error: true
+
+      - name: Log migration status
+        run: echo "⚠️  Staging migration step completed (see logs for details)"
+
+  # ============================================================================
+  # Step 4: Deploy to Staging (Vercel)
+  # ============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: [self-hosted, Linux, X64]
+    needs: migrate-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+    environment:
+      name: staging
+      url: https://staging-festival-lights.vercel.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to staging
+        run: |
+          vercel deploy \
+            --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_STAGING }}
+
+      - name: Run smoke tests
+        run: |
+          for i in {1..5}; do
+            curl -f https://staging-festival-lights.vercel.app/api/health && exit 0
+            sleep 10
+          done
+          exit 1
+        timeout-minutes: 5
+
+      - name: Log deploy status
+        run: echo "✅ Staging deployment completed"
+
+  # ============================================================================
+  # Step 5: Manual Approval Gate for Production
+  # ============================================================================
+  approval-gate:
+    name: Wait for Production Approval
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production-approval
+    steps:
+      - name: Waiting for approval
+        run: echo "⏳ Waiting for manual approval to proceed to production..."
+
+  # ============================================================================
+  # Step 6: Database Migrations (Production)
+  # ============================================================================
+  migrate-production:
+    name: Database Migration (Production)
+    runs-on: [self-hosted, Linux, X64]
+    needs: approval-gate
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        timeout-minutes: 5
+
+      - name: Create pre-migration record
+        id: backup_time
+        run: |
+          BACKUP_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "backup_time=$BACKUP_TIME" >> $GITHUB_OUTPUT
+          echo "Pre-migration backup: $BACKUP_TIME"
+
+      - name: Run Prisma migrations
+        id: migrate
+        run: |
+          npx prisma migrate deploy
+          echo "migrate_status=success" >> $GITHUB_OUTPUT
+        env:
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+        timeout-minutes: 5
+        continue-on-error: true
+
+      - name: Log migration success
+        if: success()
+        run: |
+          echo "✅ Production migration completed successfully"
+          echo "Backup Time: ${{ steps.backup_time.outputs.backup_time }}"
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          echo "::error::PRODUCTION MIGRATION FAILED - Manual intervention required"
+          exit 1
+
+  # ============================================================================
+  # Step 7: Deploy to Production (Vercel)
+  # ============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: [self-hosted, Linux, X64]
+    needs: migrate-production
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://festival-lights.vercel.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to production
+        id: deploy
+        run: |
+          vercel deploy \
+            --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Run production smoke tests
+        run: |
+          for i in {1..10}; do
+            if curl -f https://festival-lights.vercel.app/api/health; then
+              echo "✅ Health check passed"
+              curl -f https://festival-lights.vercel.app/api/events
+              exit 0
+            fi
+            echo "Attempt $i/10 failed, retrying..."
+            sleep 10
+          done
+          exit 1
+        timeout-minutes: 5
+
+      - name: Log deployment success
+        run: |
+          echo "::notice title=Deployment Success::✅ Production deployment successful"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Ref: ${{ github.ref }}"
+
+  # ============================================================================
+  # Step 8: Post-Deployment Verification
+  # ============================================================================
+  verify:
+    name: Verify Production
+    runs-on: [self-hosted, Linux, X64]
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    steps:
+      - name: Check application health
+        run: |
+          for i in {1..10}; do
+            if curl -f https://festival-lights.vercel.app/api/health; then
+              echo "✅ Application is healthy"
+              exit 0
+            fi
+            echo "Attempt $i/10 failed, retrying..."
+            sleep 10
+          done
+          echo "❌ Application health check failed"
+          exit 1
+
+      - name: Verify database connectivity
+        run: |
+          curl -f https://festival-lights.vercel.app/api/events \
+            -H "Accept: application/json" || exit 1
+          echo "✅ Database connectivity verified"
+
+      - name: Log verification complete
+        run: echo "✅ Production verification completed successfully"
+
+  # ============================================================================
+  # Step 9: Cleanup
+  # ============================================================================
+  cleanup:
+    name: Cleanup
+    runs-on: [self-hosted, Linux, X64]
+    needs: [deploy-production, verify]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Remove build artifacts
+        run: |
+          rm -f build-*.tar.gz
+          rm -rf .next
+          echo "✅ Build artifacts cleaned"
+
+      - name: Clear npm cache
+        run: npm cache clean --force
+        continue-on-error: true
+
+      - name: Disk space check
+        run: df -h

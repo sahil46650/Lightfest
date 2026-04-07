@@ -1,0 +1,14 @@
+name: Test Deploy with One Environment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test with Staging Environment
+    runs-on: [self-hosted, Linux, X64]
+    environment:
+      name: staging
+    steps:
+      - name: Echo test
+        run: echo "Testing with staging environment"

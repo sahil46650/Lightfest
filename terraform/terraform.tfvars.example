@@ -1,0 +1,140 @@
+# Festival Lights - Terraform Configuration Example
+#
+# Copy this file to terraform.tfvars and fill in your actual values:
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# DO NOT commit terraform.tfvars to git (add to .gitignore)
+# Store sensitive values in environment variables or use Terraform Cloud
+
+# ============================================================================
+# Required: Vercel Configuration
+# ============================================================================
+
+# Your Vercel API token
+# Get from: https://vercel.com/account/tokens
+# Required scope: full
+vercel_api_token = "vercel_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+# Your Vercel organization ID
+# Get from: https://vercel.com/teams (click on your team, see URL)
+# Format: typically "team_XXXXXXXXXXXXXXXXX"
+vercel_org_id = "team_XXXXXXXXXXXXXXXXX"
+
+# ============================================================================
+# Required: GitHub Configuration
+# ============================================================================
+
+# GitHub organization or username
+# Example: "anthropics" or "jrosslee"
+github_org = "your-github-org"
+
+# GitHub repository name (without .git)
+# Example: "festival-lights" or "ecomm_demo"
+github_repo = "festival-lights"
+
+# ============================================================================
+# Required: Domain Configuration
+# ============================================================================
+
+# Production domain for your application
+# This should point to Vercel's nameservers
+# DNS Records will be created in Vercel automatically
+production_domain = "festival-lights.com"
+
+# Staging domain for testing deployments
+# Use a subdomain or separate domain
+staging_domain = "staging.festival-lights.com"
+
+# ============================================================================
+# Required: NextAuth Configuration
+# ============================================================================
+
+# NextAuth URL for production
+# Must match your production domain
+nextauth_url_prod = "https://festival-lights.com"
+
+# NextAuth URL for staging
+# Must match your staging domain
+nextauth_url_staging = "https://staging.festival-lights.com"
+
+# ============================================================================
+# Optional: Email Configuration
+# ============================================================================
+
+# Email address used for sending booking confirmations
+# This is stored as an environment variable in Vercel
+email_from = "bookings@festival-lights.com"
+
+# ============================================================================
+# Optional: Feature Flags
+# ============================================================================
+
+# Whether to create and configure the staging domain
+# Set to false if you only want production
+create_staging_domain = true
+
+# ============================================================================
+# Optional: Project Configuration
+# ============================================================================
+
+# Base name for Vercel projects
+# Defaults to "festival-lights"
+# project_name = "festival-lights"
+
+# Custom tags to apply to all Terraform-managed resources
+# environment_tags = {
+#   terraform   = "true"
+#   project     = "festival-lights"
+#   managed_by  = "terraform"
+#   team        = "engineering"
+# }
+
+# ============================================================================
+# How to Apply This Configuration
+# ============================================================================
+#
+# 1. Fill in all the values above with your actual configuration
+#
+# 2. Initialize Terraform (if not done yet):
+#    terraform init
+#
+# 3. Validate the configuration:
+#    terraform plan
+#
+# 4. Apply the configuration:
+#    terraform apply
+#
+# 5. After apply completes, note the outputs:
+#    - VERCEL_PROJECT_ID (production)
+#    - VERCEL_PROJECT_ID_STAGING (staging)
+#    - VERCEL_ORG_ID
+#
+# 6. Set GitHub Actions secrets using gh cli:
+#    gh secret set VERCEL_ORG_ID --body 'team_XXXXXXXXX'
+#    gh secret set VERCEL_PROJECT_ID --body 'prj_XXXXXXXXX'
+#    gh secret set VERCEL_PROJECT_ID_STAGING --body 'prj_XXXXXXXXX'
+#
+# 7. Set additional GitHub repository secrets:
+#    gh secret set VERCEL_TOKEN --body 'vercel_XXXXX'
+#    gh secret set DATABASE_URL --body 'postgresql://...'
+#    gh secret set STAGING_DATABASE_URL --body 'postgresql://...'
+#    gh secret set DIRECT_DATABASE_URL --body 'postgresql://...'
+#    gh secret set NEXTAUTH_SECRET --body 'generated-secret-key'
+#
+# ============================================================================
+# Security Notes
+# ============================================================================
+#
+# - The vercel_api_token is marked as sensitive in variables.tf
+# - Terraform will NOT output it in logs or state file
+# - DO NOT commit terraform.tfvars to git repository
+# - Add to .gitignore: echo "terraform.tfvars" >> .gitignore
+#
+# - For production deployments, use Terraform Cloud with encrypted variables
+#   https://app.terraform.io/
+#
+# - Or set variables via environment:
+#   export TF_VAR_vercel_api_token="vercel_XXXXX"
+#   export TF_VAR_vercel_org_id="team_XXXXX"
+#
+# ============================================================================

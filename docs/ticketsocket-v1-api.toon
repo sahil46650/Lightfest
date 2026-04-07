@@ -1,0 +1,3590 @@
+swagger: "2.0"
+info:
+  title: REST API
+  contact:
+    email: devteam@ticketsocket.com
+  version: 1.7.1
+paths:
+  "/api/v1/access-packages":
+    get:
+      tags[1]: Access Packages
+      summary: Returns a list of access packages
+      description: Returns a list of access packages.
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/access-packages/{packageId}":
+    get:
+      tags[1]: Access Packages
+      summary: List access package information
+      description: Returns access package for associated id
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        packageId,path,The access package id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/affiliate/{affiliateId}":
+    get:
+      tags[1]: Affiliates
+      summary: List affiliates information
+      description: Returns all affiliates with associated id
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        affiliateId,path,The affiliate id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/affiliates":
+    get:
+      tags[1]: Affiliates
+      summary: List of affiliates
+      description: Returns all affiliates
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        search,query,Search term to use for filtering - must be at least 3 characters,string
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Affiliates
+      summary: Create a new affiliate
+      description: Create a new affiliate
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/AffiliateCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/affiliates/{affiliateId}/update":
+    post:
+      tags[1]: Affiliates
+      summary: Updates an affiliate
+      description: Updates an affiliate
+      produces[1]: application/json
+      parameters[2]:
+        - name: affiliateId
+          in: path
+          description: The affiliate id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/AffiliateUpdateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/categories":
+    get:
+      tags[1]: Category
+      summary: List all categories for site
+      description: Gets a list of categories.
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Category
+      summary: Create a new category
+      description: Create a new category
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/CategoryCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/check-in":
+    post:
+      tags[1]: Tickets
+      summary: Attempt to checkin a ticket
+      description: Attempt to checkin a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/CheckinTicketParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets":
+    get:
+      tags[1]: Tickets
+      summary: Get the tickets for an event or order
+      description: Get the tickets for an event or order
+      produces[1]: application/json
+      parameters[18]{name,in,description,type}:
+        eventId,query,The event id,integer
+        orderId,query,The order id,integer
+        customerId,query,The customer id (synonymous with userId),integer
+        customerExternalId,query,The external id of the customer,integer
+        userId,query,The user id (synonymous with customerId),integer
+        attendeeFirstName,query,Search the Attendee's first name - for example ('Jos%' adding a percent on either end will make it match that end as a wildcard search),string
+        attendeeLastName,query,Search the Attendee's last name - for example ('John%' adding a percent on either end will make it match that end as a wildcard search),string
+        externalId,query,The external id,integer
+        barcodeSearch,query,The barcode to search for,string
+        chipNumber,query,The chip number,string
+        bibNumber,query,The bib number,string
+        customerExternalId,query,The external ID of the customer,string
+        change,query,"Include new ticket id\\old ticket id if applicable.",boolean
+        lastUpdate,query,Limit to tickets updated after this timestamp or time string,string
+        processState,query,Limit to tickets not scanned (0) or scanned/checkedIn (2) or shipped (4),string
+        scannedBy,query,Limit to tickets to those scanned by this Administrator Id,string
+        limit,query,Limit the results,integer
+        offset,query,Offset the results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/tickets/{ticketId}":
+    get:
+      tags[1]: Tickets
+      summary: Get the data for a specific ticket
+      description: Get the data for a specific ticket
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        ticketId,path,The ticket id,integer
+        fields,query,Fields to return,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/claims":
+    get:
+      tags[1]: Tickets
+      summary: Find tickets with associated claims
+      description: Find tickets with associated claims
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        orderId,query,The order id,string
+        barcode,query,Barcode,string
+        emailAddress,query,Claimant email address,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/tickets/sign-waiver":
+    post:
+      tags[1]: Tickets
+      summary: Attempt to sign the waiver for a ticket
+      description: Attempt to checkin a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/SignWaiverParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/claim":
+    post:
+      tags[1]: Tickets
+      summary: Attempt to set a ticket to claimed
+      description: Attempt to set a ticket to claimed
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/ClaimTicketParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/update-claim":
+    post:
+      tags[1]: Tickets
+      summary: Change the claimant email address for an unclaimed ticket
+      description: Change the claimant email address for an unclaimed ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateClaimTicketParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/for-purchaser":
+    post:
+      tags[1]: Tickets
+      summary: Set the for purchaser status for a ticket
+      description: Set the for purchaser status for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateForPurchaserParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/external-membership-id":
+    post:
+      tags[1]: Tickets
+      summary: Set the external membership id for a ticket
+      description: Set the external membership id for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateExternalMembershipIdParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/bib-number":
+    post:
+      tags[1]: Tickets
+      summary: Save the bib number for a ticket
+      description: Save the bib number for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/SaveBibNumberData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/chip-number":
+    post:
+      tags[1]: Tickets
+      summary: Save the chip number for a ticket
+      description: Save the chip number for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/SaveChipNumberData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/set-price":
+    post:
+      tags[1]: Tickets
+      summary: Update the price of a purchased ticket
+      description: Update the price of a purchased ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/SetPriceData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/cancel":
+    post:
+      tags[1]: Tickets
+      summary: Set a ticket to cancelled
+      description: Set a ticket to cancelled
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/BasicTicketData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/uncancel":
+    post:
+      tags[1]: Tickets
+      summary: Set a ticket to purchased
+      description: Set a ticket to purchased
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/BasicTicketData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/delete":
+    post:
+      tags[1]: Tickets
+      summary: Set a ticket to deleted
+      description: Set a ticket to deleted
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/BasicTicketData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/undelete":
+    post:
+      tags[1]: Tickets
+      summary: Set a ticket to not deleted
+      description: Set a ticket to not deleted
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/BasicTicketData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/set-upgrade-state":
+    post:
+      tags[1]: Tickets
+      summary: Set the upgrade state for a ticket
+      description: Set the upgrade state for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/UpgradeStateData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tickets/set-transfer-state":
+    post:
+      tags[1]: Tickets
+      summary: Set the transfer state for a ticket
+      description: Set the transfer state for a ticket
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TransferStateData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders":
+    get:
+      tags[1]: Orders
+      summary: Get a list of orders
+      description: Returns a list of orders
+      produces[1]: application/json
+      parameters[21]:
+        - name: search
+          in: query
+          description: "Search term to use for filtering, must be at least 3 characters, matches against order ID, barcode, and shipping or billing first and last name, and attendee name."
+          type: string
+        - name: orderHash
+          in: query
+          description: Find the order for this hash
+          type: string
+        - name: purchaserFirstName
+          in: query
+          description: Search for an attendees first name (add percent on either side for partial name)
+          type: string
+        - name: purchaserLastName
+          in: query
+          description: "Search for an attendees last name (add percent on either side for partial name - ex: 'Smi%') "
+          type: string
+        - name: fromDate
+          in: query
+          description: Only orders purchased after than this date
+          type: string
+        - name: toDate
+          in: query
+          description: Only orders purchased before than this date
+          type: string
+        - name: updatedFrom
+          in: query
+          description: Only orders updated after this date
+          type: string
+        - name: updatedTo
+          in: query
+          description: Only orders updated before this date
+          type: string
+        - name: eventId
+          in: query
+          description: Only orders with a ticket for this event
+          type: string
+        - name: typeId
+          in: query
+          description: Only orders with a ticket for this ticket type
+          type: string
+        - name: customerId
+          in: query
+          description: Only orders made by this user (synonymous with userId)
+          type: string
+        - name: userId
+          in: query
+          description: Only orders made by this user (synonymous with customerId)
+          type: string
+        - name: externalId
+          in: query
+          description: Only orders made by this external user (SSO)
+          type: string
+        - name: teamTicket
+          in: query
+          description: Only orders with tickets that do have a team assigned
+          type: boolean
+        - name: individualTicket
+          in: query
+          description: Only orders with tickets that do not have a team assigned
+          type: boolean
+        - name: change
+          in: query
+          description: "Include new order id\\old order id if applicable."
+          type: boolean
+        - name: checkedIn
+          in: query
+          description: Only orders with (or without) a checked in ticket
+          type: boolean
+        - name: limit
+          in: query
+          description: Limit returned results
+          type: integer
+        - name: offset
+          in: query
+          description: Offset returned results
+          type: integer
+        - name: sortBy
+          in: query
+          description: Sorting direction
+          type: array
+          items:
+            type: string
+            enum[2]: purchaseDate,lastUpdated
+        - name: sortDirection
+          in: query
+          description: Sort by
+          type: array
+          items:
+            type: string
+            enum[2]: asc,desc
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Orders
+      summary: Attempt to run the checkout process
+      description: Attempt to run the checkout process
+      produces[1]: application/json
+      parameters[1]:
+        - name: orderData
+          in: body
+          schema:
+            "$ref": #/definitions/CreateOrderData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/describe":
+    post:
+      tags[1]: Orders
+      summary: Build and return the cart and all fees for an order data package
+      description: Build and return the cart and all fees for an order data package
+      produces[1]: application/json
+      parameters[1]:
+        - name: orderData
+          in: body
+          schema:
+            "$ref": #/definitions/DescribeOrderData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}":
+    get:
+      tags[1]: Orders
+      summary: Get the details of an order
+      description: Returns the details for an order
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        orderId,path,The order id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/tickets/{ticketId}/updateAttendee":
+    post:
+      tags[1]: Orders
+      summary: Update the attendee information for a single ticket
+      description: Update the attendee information for a single ticket
+      produces[1]: application/json
+      parameters[3]:
+        - name: orderId
+          in: path
+          description: The order id
+          type: integer
+        - name: ticketId
+          in: path
+          description: The ticket id
+          type: integer
+        - name: customerData
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateTicketAttendeeData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/saveOrderFees":
+    post:
+      tags[1]: Orders
+      summary: Update/save the order level fees for an order
+      description: Update/save the order level fees for an order
+      produces[1]: application/json
+      parameters[2]:
+        - name: orderId
+          in: path
+          description: The order id
+          type: integer
+        - name: feeData
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateOrderFeeData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/saveOrderAnswers":
+    post:
+      tags[1]: Orders
+      summary: Update/save the purchaser questions for an order
+      description: Update/save the purchaser questions for an order
+      produces[1]: application/json
+      parameters[2]:
+        - name: orderId
+          in: path
+          description: The order id
+          type: integer
+        - name: answerData
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateOrderAnswerData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/tickets/{ticketId}/saveTicketAnswers":
+    post:
+      tags[1]: Orders
+      summary: Update/save the attendee question answers for a single ticket
+      description: Update/save the attendee question answers for a single ticket
+      produces[1]: application/json
+      parameters[3]:
+        - name: orderId
+          in: path
+          description: The order id
+          type: integer
+        - name: ticketId
+          in: path
+          description: The ticket id
+          type: integer
+        - name: answerData
+          in: body
+          schema:
+            "$ref": #/definitions/UpdateTicketAnswerData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/delete":
+    post:
+      tags[1]: Orders
+      summary: Set an order to deleted
+      description: Set an order to deleted
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        orderId,path,The order id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/restore":
+    post:
+      tags[1]: Orders
+      summary: Set an order to restored
+      description: Set an order to restored
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        orderId,path,The order id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/{orderId}/complete-staged-order":
+    post:
+      tags[1]: Orders
+      summary: Complete an order that has been staged and deleted
+      description: Complete an order that has been staged and deleted
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        orderId,path,The order id,integer
+        paymentIntentId,query,An optional stripe payment intent ID to associate with the order,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/customers":
+    get:
+      tags[1]: Customers
+      summary: List all customers for site
+      description: Gets a list of customers.
+      produces[1]: application/json
+      parameters[5]{name,in,description,type}:
+        emailAddress,query,Get the user for this email address,string
+        externalId,query,Get users with this external id,string
+        search,query,Search term to use for filtering - must be at least 3 characters,string
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Customers
+      summary: Create a new customer
+      description: Create a new customer
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/CustomerCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/customers/{customerId}/update":
+    post:
+      tags[1]: Customers
+      summary: Updates a customer
+      description: Updates a customer
+      produces[1]: application/json
+      parameters[2]:
+        - name: customerId
+          in: path
+          description: The customer id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/CustomerUpdateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/customers/check-for-account":
+    post:
+      tags[1]: Customers
+      summary: Check for an account and create an unregistered user if one isn't found
+      description: Check for an account and create an unregistered user if one isn't found
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/CheckForAccountObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events":
+    get:
+      tags[1]: Event
+      summary: List all events for site
+      description: "\r\nGets a list of events that match the filtering parameters.\r\n\r\nSearching:\r\n\r\nIn order to perform searches, users can provide a string using the\r\n**search** parameter. The search parameter will be matched with a like search on the title and URL of the event.\r\nAs an example, /api/v1/events/?search=Rockstar\r\n\r\nwill produce an SQL statement equivalent to:\r\n\r\n(\\`title\\` LIKE '%Rockstar%' || `url` LIKE '%Rockstar%')\r\n\r\nA category ID can be given using the **category** parameter, as an example /api/v1/events/?category=1\r\n\r\nWill filter the list to events that are linked to category 1.\r\n\t\t"
+      produces[1]: application/json
+      parameters[18]{name,in,description,type}:
+        search,query,search terms to use for filtering,string
+        externalId,query,External event ID to match against,string
+        category,query,category to use for filtering,integer
+        tags,query,include events tagged with these comma separated tags,string
+        includeEnded,query,include events that have ended in the results,boolean
+        includeOffSale,query,include events that are not on sale in the results,boolean
+        includeTicketTypes,query,include ticket type data for each event,boolean
+        includeWaveTimes,query,include wave time data for each event,boolean
+        startsBefore,query,Limit to events starting before this date/time.,string
+        startsAfter,query,Limit to events starting after this date/time.,string
+        endsBefore,query,Limit to events ending before this date/time.,string
+        endsAfter,query,Limit to events ending after this date/time.,string
+        promoCodeRequired,query,Limit to events that require a promo code.,boolean
+        company,query,Filter based on company/organization.,string
+        orderBy,query,"start, end, cutOff, id, title",string
+        orderDirection,query,asc or desc,string
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Event
+      summary: Create a new event
+      description: Create a new event
+      produces[1]: application/json
+      parameters[1]:
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/public-events":
+    get:
+      tags[1]: Event
+      summary: List all events for site
+      description: "\r\nGets a list of public events that match the filtering parameters.\r\n\r\nSearching:\r\n\r\nIn order to perform searches, users can provide a string using the\r\n**search** parameter. The search parameter will be matched with a like search on the title and URL of the event.\r\nAs an example, /api/v1/public-events/?search=Rockstar\r\n\r\nwill produce an SQL statement equivalent to:\r\n\r\n(\\`title\\` LIKE '%Rockstar%' || `url` LIKE '%Rockstar%')\r\n\r\nA category ID can be given using the **category** parameter, as an example /api/v1/public-events/?category=1\r\n\r\nWill filter the list to events that are linked to category 1.\r\n\t\t"
+      produces[1]: application/json
+      parameters[14]{name,in,description,type}:
+        search,query,search terms to use for filtering,string
+        externalId,query,External event ID to match against,string
+        category,query,category to use for filtering,integer
+        tags,query,include events tagged with these comma separated tags,string
+        includeOffSale,query,include events that are not on sale in the results,boolean
+        startsBefore,query,Limit to events starting before this date/time.,string
+        startsAfter,query,Limit to events starting after this date/time.,string
+        endsBefore,query,Limit to events ending before this date/time.,string
+        endsAfter,query,Limit to events ending after this date/time.,string
+        company,query,Filter based on company/organization.,string
+        orderBy,query,"start, end, cutOff, id, title",string
+        orderDirection,query,asc or desc,string
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/events/{eventId}":
+    get:
+      tags[1]: Event
+      summary: Get the details of an event
+      description: Returns the details for an event
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        eventId,path,The event id,integer
+        allData,query,"Include related information such as TicketTypes, Wavetimes and tags",boolean
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+    post:
+      tags[1]: Event
+      summary: Edit an event
+      description: Edit an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/delete":
+    post:
+      tags[1]: Event
+      summary: Archives an event
+      description: Archive an event
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/timezone":
+    get:
+      tags[1]: Event
+      summary: Get event timezone
+      description: Get event timezone
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/purchaser-questions":
+    get:
+      tags[1]: Event
+      summary: "List purchaser questions "
+      description: Returns all purchaser questions of an event
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-questions":
+    post:
+      tags[1]: Event
+      summary: Attach questions to an event as purchaser questions
+      description: Attach questions to an event as purchaser questions
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventQuestionsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/remove-questions":
+    post:
+      tags[1]: Event
+      summary: Remove questions from an event
+      description: Remove questions to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventQuestionsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-categories":
+    post:
+      tags[1]: Event
+      summary: Add tags to an event
+      description: Add tags to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventCategoriesList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/remove-categories":
+    post:
+      tags[1]: Event
+      summary: Remove categories from an event
+      description: Remove categories from an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventCategoriesList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-tags":
+    post:
+      tags[1]: Event
+      summary: Add tags to an event
+      description: Add tags to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventTagsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/remove-tags":
+    post:
+      tags[1]: Event
+      summary: Remove tags from an event
+      description: Remove tags to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/EventTagsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/additional-content":
+    get:
+      tags[1]: Event
+      summary: Get the additional content for an event
+      description: Get the additional content for an event
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        eventId,path,The event id,integer
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-additional-content":
+    post:
+      tags[1]: Event
+      summary: Add additional content to an event
+      description: Add additional content to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/AdditionalContentCreateParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/remove-additional-content":
+    post:
+      tags[1]: Event
+      summary: Remove additional content from an event
+      description: Remove additional content from an event
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        eventId,path,The event id,integer
+        additionalContentId,query,The id of the additional content to delete,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/wave-times":
+    get:
+      tags[1]: Event
+      summary: Get the wave times for an event
+      description: Get the wave times for an event
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        eventId,path,The event id,integer
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/bulk-pricing":
+    get:
+      tags[1]: Event
+      summary: Get the bulk pricing for an event
+      description: Get the bulk pricing for an event
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        eventId,path,The event id,integer
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/price-rules":
+    get:
+      tags[1]: Event
+      summary: Get the price rules for an event
+      description: Get the price rules for an event
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        eventId,path,The event id,integer
+        limit,query,limit for items per page,integer
+        offset,query,offset for pagination,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-dated-price-rule":
+    post:
+      tags[1]: Event
+      summary: Add a price rule to an event
+      description: Add a price rule to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/PriceRuleCreateDatedParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/add-quantity-price-rule":
+    post:
+      tags[1]: Event
+      summary: Add a price rule to an event
+      description: Add a price rule to an event
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/PriceRuleCreateQuantityParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/delete-price-rule":
+    post:
+      tags[1]: Event
+      summary: Remove a price rule from an event
+      description: Remove price rule from an event
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        eventId,path,The event id,integer
+        priceRuleId,query,The id of the price rule to delete,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/link-type-to-price-rule":
+    post:
+      tags[1]: Event
+      summary: Attach ticket type to a price rule
+      description: Attach ticket type to a price rule
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypePriceRuleLinkObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/remove-type-from-price-rule":
+    post:
+      tags[1]: Event
+      summary: Remove ticket type from a price rule
+      description: Remove ticket type from a price rule
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        eventId,path,The event id,integer
+        ticketTypeId,query,The id of the ticket type,integer
+        priceRuleId,query,The id of the price rule,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/scan-data":
+    get:
+      tags[1]: Event
+      summary: Get the additional content for an event
+      description: Get the additional content for an event
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/fees":
+    get:
+      tags[1]: Fees
+      summary: Returns the service and 3rd party fee configuration
+      description: Returns the service and 3rd party fee configuration
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/fees/processing":
+    get:
+      tags[1]: Fees
+      summary: Calculates the processing fee for a given cart total
+      description: Calculates the processing fee for a given cart total
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        cartTotal,query,Incoming cart total (including all fees except processing),number
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/currency":
+    get:
+      tags[1]: Orders
+      summary: Gets the currency settings for the site
+      description: Gets the currency settings for the site
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-key":
+    get:
+      tags[1]: Orders
+      summary: Gets the public stripe key and account ID for the site
+      description: Gets the public stripe key and account ID for the site
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/square-ids":
+    get:
+      tags[1]: Orders
+      summary: Gets the application and location IDs for square
+      description: Gets the application and location IDs for square
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/sezzle-key":
+    get:
+      tags[1]: Orders
+      summary: Gets the public sezzle key for the site
+      description: Gets the public sezzle key for the site
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-payment-methods":
+    get:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        emailAddress,query,Customer email address,string
+        stripeCustomerId,query,Stripe customer id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-customer":
+    get:
+      tags[1]: Orders
+      summary: Gets a stripe customer by id or email address
+      description: Gets a stripe customer by id or email address
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        emailAddress,query,Customer email address,string
+        stripeCustomerId,query,Stripe customer id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[3]{name,in,type}:
+        firstName,query,string
+        lastName,query,string
+        emailAddress,query,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-setup-intent":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[4]:
+        - name: stripeCustomerId
+          in: query
+          description: Stripe customer id
+          type: string
+        - name: firstName
+          in: query
+          type: string
+        - name: lastName
+          in: query
+          type: string
+        - name: emailAddress
+          in: query
+          type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-remove-payment-method":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        paymentMethodId,query,Payment method id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-payment-intent":
+    get:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        paymentIntentId,query,ID of the payment intent to get,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[7]{name,in,description,type}:
+        totalAmount,query,Total for the payment intent,string
+        applicationFeeAmount,query,Application fee split for the payment intent,string
+        orderId,query,Order ID to add to the description,integer
+        stripeCustomerId,query,Stripe customer id,string
+        paymentMethodId,query,Payment method id,string
+        authorizeAndCapture,query,Authorize and capture this payment intent immediately if a payment method was supplied,boolean
+        emailAddress,query,Email Address of customer (used to lookup customerId if not supplied),string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/update-stripe-payment-intent":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[5]{name,in,description,type}:
+        paymentIntentId,query,Payment intent to update id,string
+        totalAmount,query,Total for the payment intent,string
+        applicationFeeAmount,query,Application fee split for the payment intent,string
+        stripeCustomerId,query,Stripe customer id,string
+        paymentMethodId,query,Payment method id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/cancel-stripe-payment-intent":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        paymentIntentId,query,ID of the payment intent to cancel,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/stripe-readers":
+    get:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        stripeCustomerId,query,Stripe customer id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/process-stripe-reader-payment":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        stripeReaderId,query,Stripe reader id,string
+        paymentIntentId,query,Payment Intent Id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/cancel-stripe-reader-payment":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        stripeReaderId,query,Stripe reader id,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/create-payu-transaction":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[13]{name,in,description,type}:
+        totalAmount,query,Total for the transaction,string
+        orderId,query,Order that this transaction is for,integer
+        successUrl,query,URL to send the customer to after success,string
+        failureUrl,query,URL to send the customer to after failure,string
+        firstName,query,Billing first name,string
+        lastName,query,Billing last name,string
+        address,query,Billing street address,string
+        city,query,Billing city,string
+        state,query,Billing state,string
+        zip,query,Billing zip,string
+        country,query,Billing country,string
+        emailAddress,query,Billing email address,string
+        phone,query,Billing phone number,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/orders/confirm-payu-transaction":
+    post:
+      tags[1]: Orders
+      summary: ""
+      description: ""
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        orderId,query,Order that this transaction is for,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/organizers":
+    get:
+      tags[1]: Organizers
+      description: Returns all organizers
+      produces[1]: application/json
+      parameters[4]{name,in,description,type}:
+        search,query,Search term to use for filtering - must be at least 3 characters,string
+        eventId,query,Filter to organizers assigned to this event ID,integer
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Organizers
+      summary: Create a new organizer
+      description: Create a organizer
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/OrganizerCreateParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/organizers/{organizerId}":
+    get:
+      tags[1]: Organizers
+      description: Returns the details provided organizer
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        organizerId,path,The organizer id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+    post:
+      tags[1]: Organizers
+      summary: Update an organizer
+      description: Update an organizer
+      produces[1]: application/json
+      parameters[2]:
+        - name: organizerId
+          in: path
+          description: The organizer id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/OrganizerUpdateParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/organizers/{organizerId}/delete":
+    post:
+      tags[1]: Organizers
+      summary: Delete an organizer
+      description: Delete an organizer
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        organizerId,path,The organizer id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/organizers/{organizerId}/activate":
+    post:
+      tags[1]: Organizers
+      summary: Activates an organizer
+      description: Activates an organizer
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        organizerId,path,The organizer id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/organizers/{organizerId}/deactivate":
+    post:
+      tags[1]: Organizers
+      summary: Deactivates an organizer
+      description: Deactivates an organizer
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        organizerId,path,The organizer id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/organizers/{organizerId}/set-events":
+    post:
+      tags[1]: Organizers
+      summary: Assigns or removes events to an organizer
+      description: Assigns or removes events to an organizer
+      produces[1]: application/json
+      parameters[2]:
+        - name: organizerId
+          in: path
+          description: The organizer id
+          type: integer
+        - name: inputFields
+          in: body
+          description: "comma separated list of event ids. Set to [] to remove all events from the organizer"
+          schema:
+            "$ref": #/definitions/AddEventsParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/participant-info-settings":
+    get:
+      tags[1]: Participant Info Settings
+      summary: List participant info settings
+      description: "Returns all participant info settings\n     *  to determine which form field to output"
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/promo-codes/validate-promo-code/{promoCodeText}":
+    get:
+      tags[1]: Promo Codes
+      description: Returns the details of the provided promo code
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        promoCodeText,path,The promo code text,string
+      responses:
+        "200":
+          description: success
+  "/api/v1/promo-codes":
+    get:
+      tags[1]: Promo Codes
+      summary: List all promo codes
+      description: Gets a list of promo codes.
+      produces[1]: application/json
+      parameters[7]{name,in,description,type}:
+        code,query,Match this code text,string
+        search,query,"Search term to use for filtering - must be at least 3 characters.  Matches against the code, description, and code group",string
+        description,query,Match only codes with this description,string
+        codeGroups,query,Match only codes with this comma separated list of code groups,string
+        activeOnly,query,Only match active codes,boolean
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/promo-codes/{promoCodeId}":
+    get:
+      tags[1]: Promo Codes
+      summary: Get the details of a promo code
+      description: Returns the details of a promo code
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        promoCodeId,path,The promo code id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/questions":
+    get:
+      tags[1]: Questions
+      summary: Returns a list of questions
+      description: Returns a list of questions.
+      produces[1]: application/json
+      parameters[3]{name,in,description,type}:
+        search,query,Search term to use for filtering by question name - must be at least 3 characters,string
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Questions
+      summary: Create a new question
+      description: Create a question
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/QuestionCreateUpdateParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/questions/{questionId}":
+    get:
+      tags[1]: Questions
+      summary: Get the details of a question
+      description: Returns the details of a question
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        questionId,path,The question id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+    post:
+      tags[1]: Questions
+      summary: Update a question
+      description: Update a question
+      produces[1]: application/json
+      parameters[2]:
+        - name: questionId
+          in: path
+          description: The question id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/QuestionCreateUpdateParamObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/questions/{questionId}/delete":
+    post:
+      tags[1]: Questions
+      summary: Delete an question
+      description: Delete an question
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        questionId,path,The question id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/questions/{questionId}/add-answer":
+    post:
+      tags[1]: Questions
+      summary: Add answers to a question
+      description: Add answers to a question
+      produces[1]: application/json
+      parameters[2]:
+        - name: questionId
+          in: path
+          description: The question id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/AddAnswerParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/questions/{questionId}/remove-answer/{answerId}":
+    post:
+      tags[1]: Questions
+      summary: Remove answers from a question
+      description: Remove answers from a question
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        questionId,path,The question id,integer
+        answerId,path,The answer id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/StatusApiResponseObject
+  "/api/v1/receipts":
+    get:
+      tags[1]: Receipt
+      summary: List all receipts for an email address
+      description: Gets a list of receipts for a user.
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/reports/reconciliation":
+    get:
+      tags[1]: Reports
+      summary: Generates a reconciliation report for the date range given
+      description: Generates a reconciliation report.
+      produces[1]: application/json
+      parameters[16]:
+        - name: dateRange
+          in: query
+          description: Type of date range
+          type: string
+          enum[7]: custom,yearToDate,today,yesterday,week,month,all
+        - name: fromDate
+          in: query
+          description: From date string
+          type: string
+        - name: fromTime
+          in: query
+          description: From time string
+          type: string
+        - name: toDate
+          in: query
+          description: To date string
+          type: string
+        - name: toTime
+          in: query
+          description: To time string
+          type: string
+        - name: useUtc
+          in: query
+          description: Use UTC for the timezone
+          type: boolean
+        - name: multiSite
+          in: query
+          description: Multi-side mode output
+          type: boolean
+        - name: "transactionTypes[credit]"
+          in: query
+          description: Include credit orders
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[creditRefund]"
+          in: query
+          description: Include refunds
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[upgrade]"
+          in: query
+          description: Include upgrades
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[ticketClaim]"
+          in: query
+          description: Include claims
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[ticketTransfer]"
+          in: query
+          description: Include trnasfers
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[changeInfo]"
+          in: query
+          description: Include change informations
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[changeEvent]"
+          in: query
+          description: Include change events
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: limit
+          in: query
+          description: Limit returned results
+          type: integer
+        - name: offset
+          in: query
+          description: Offset returned results
+          type: integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/reports/export-profiles":
+    get:
+      tags[1]: Reports
+      summary: Lists configured export profiles
+      description: Lists configured export profiles.
+      produces[1]: application/json
+      parameters[7]{name,in,description,type}:
+        search,query,Search string,string
+        limit,query,Limit returned results,integer
+        fromDate,query,From date string,string
+        fromTime,query,From time string,string
+        toDate,query,To date string,string
+        toTime,query,To time string,string
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/reports/export-profile/{profileId}":
+    get:
+      tags[1]: Reports
+      summary: Generate an export using an export profile
+      description: Generate an export using an export profile.
+      produces[1]: application/json
+      parameters[12]:
+        - name: profileId
+          in: path
+          description: Export profile ID
+          type: integer
+        - name: includeColumnNames
+          in: query
+          description: Include column names
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: fromTimestamp
+          in: query
+          description: Unix formatted timestamp
+          type: string
+        - name: toTimestamp
+          in: query
+          description: Unix formatted timestamp
+          type: string
+        - name: fromDate
+          in: query
+          description: From date string
+          type: string
+        - name: fromTime
+          in: query
+          description: From time string
+          type: string
+        - name: toDate
+          in: query
+          description: To date string
+          type: string
+        - name: toTime
+          in: query
+          description: To time string
+          type: string
+        - name: useUpdatedTime
+          in: query
+          description: Use updated timestamp for the time filter
+          type: integer
+          enum[2]: "0","1"
+        - name: useUtc
+          in: query
+          description: Use UTC for the timezone
+          type: boolean
+        - name: limit
+          in: query
+          description: Limit returned results
+          type: integer
+        - name: offset
+          in: query
+          description: Offset returned results
+          type: integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/reports/multi-site-export-profile/{profileId}":
+    get:
+      tags[1]: Reports
+      summary: Generate an multi site export with a profile
+      description: Generate an multi site export with a profile.
+      produces[1]: application/json
+      parameters[9]:
+        - name: profileId
+          in: path
+          description: Export profile ID
+          type: integer
+        - name: fromTimestamp
+          in: query
+          description: Unix formatted timestamp
+          type: string
+        - name: toTimestamp
+          in: query
+          description: Unix formatted timestamp
+          type: string
+        - name: fromDate
+          in: query
+          description: From date string
+          type: string
+        - name: fromTime
+          in: query
+          description: From time string
+          type: string
+        - name: toDate
+          in: query
+          description: To date string
+          type: string
+        - name: toTime
+          in: query
+          description: To time string
+          type: string
+        - name: useUpdatedTime
+          in: query
+          description: Use updated timestamp for the time filter
+          type: integer
+          enum[2]: "0","1"
+        - name: useUtc
+          in: query
+          description: Use UTC for the timezone
+          type: boolean
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/reports/multi-site-reconciliation":
+    get:
+      tags[1]: Reports
+      summary: Generates a reconciliation report for the date range given across all linked sites
+      description: Generates a reconciliation report for the date range given across all linked sites.
+      produces[1]: application/json
+      parameters[14]:
+        - name: dateRange
+          in: query
+          description: Type of date range
+          type: string
+          enum[7]: custom,yearToDate,today,yesterday,week,month,all
+        - name: fromDate
+          in: query
+          description: From date string
+          type: string
+        - name: fromTime
+          in: query
+          description: From time string
+          type: string
+        - name: toDate
+          in: query
+          description: To date string
+          type: string
+        - name: toTime
+          in: query
+          description: To time string
+          type: string
+        - name: useUtc
+          in: query
+          description: Use UTC for the timezone
+          type: boolean
+        - name: multiSite
+          in: query
+          description: Multi-side mode output
+          type: boolean
+        - name: "transactionTypes[credit]"
+          in: query
+          description: Include credit orders
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[creditRefund]"
+          in: query
+          description: Include refunds
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[upgrade]"
+          in: query
+          description: Include upgrades
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[ticketClaim]"
+          in: query
+          description: Include claims
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[ticketTransfer]"
+          in: query
+          description: Include trnasfers
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[changeInfo]"
+          in: query
+          description: Include change informations
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+        - name: "transactionTypes[changeEvent]"
+          in: query
+          description: Include change events
+          type: integer
+          default: "1"
+          enum[2]: "0","1"
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/settings":
+    get:
+      tags[1]: Settings
+      summary: Returns the global site settings
+      description: Returns the global site settings
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/settings/vat":
+    get:
+      tags[1]: Settings
+      summary: Returns the VAT specific site settings
+      description: Returns the VAT specific site settings
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/settings/billing":
+    get:
+      tags[1]: Settings
+      summary: Returns the billing specific site settings
+      description: Returns the billing specific site settings
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/shipping-methods":
+    get:
+      tags[1]: Shipping Methods
+      summary: List of shipping methods
+      description: Returns all shipping methods
+      produces[1]: application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/shopping-cart":
+    get:
+      tags[1]: Shopping Cart
+      summary: Returns the contents of a stored cart
+      description: Returns the contents of a stored cart.
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        cartId,query,Session ID to identify the cart with,string
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/shopping-cart/save":
+    post:
+      tags[1]: Shopping Cart
+      summary: Save a shopping cart with an ID
+      description: Save a shopping cart with an ID
+      produces[1]: application/json
+      parameters[1]:
+        - name: saveCartData
+          in: body
+          schema:
+            "$ref": #/definitions/SaveCartData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/shopping-cart/delete":
+    post:
+      tags[1]: Shopping Cart
+      summary: Delete a shopping cart with a session
+      description: Delete a shopping cart with a session
+      produces[1]: application/json
+      parameters[1]:
+        - name: deleteCartData
+          in: body
+          schema:
+            "$ref": #/definitions/DeleteCartData
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams":
+    get:
+      tags[1]: Teams
+      summary: Returns a list of teams
+      description: Returns a list of teams.
+      produces[1]: application/json
+      parameters[5]{name,in,description,type}:
+        search,query,Search term to use for filtering by team name - must be at least 3 characters,string
+        eventId,query,Filter to teams for this event,integer
+        teamId,query,Filter to teams that this team is a member of,integer
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+    post:
+      tags[1]: Teams
+      summary: Create a new team
+      description: Create a new team
+      produces[1]: application/json
+      parameters[1]:
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TeamCreateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}":
+    get:
+      tags[1]: Teams
+      summary: Get the details of a team
+      description: Returns the details of a team
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        teamId,path,The team id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}/update":
+    post:
+      tags[1]: Teams
+      summary: Updates a team
+      description: Updates a team
+      produces[1]: application/json
+      parameters[2]:
+        - name: teamId
+          in: path
+          description: The team id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TeamUpdateParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}/add-member":
+    post:
+      tags[1]: Teams
+      summary: Adds a member (ticket) to a team
+      description: Adds a member (ticket) to a team
+      produces[1]: application/json
+      parameters[2]:
+        - name: teamId
+          in: path
+          description: The team id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TeamMemberActionParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}/remove-member":
+    post:
+      tags[1]: Teams
+      summary: Removes a member (ticket) from a team
+      description: Removes a member (ticket) from a team
+      produces[1]: application/json
+      parameters[2]:
+        - name: teamId
+          in: path
+          description: The team id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TeamMemberActionParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}/assign-captain":
+    post:
+      tags[1]: Teams
+      summary: Sets a team member ticket to be the captain's ticket
+      description: Sets a team member ticket to be the captain's ticket
+      produces[1]: application/json
+      parameters[2]:
+        - name: teamId
+          in: path
+          description: The team id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TeamMemberActionParamsObject
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/teams/{teamId}/team-invite":
+    post:
+      tags[1]: Teams
+      summary: Invite Friends to join a team
+      description: "Sends an E-mail to the array of E-mail addresses passed in, inviting them to join the team."
+      produces[1]: application/json
+      parameters[2]:
+        - name: teamId
+          in: path
+          description: The Team id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/TeamEmailList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/events/{eventId}/public-ticket-types":
+    get:
+      tags[1]: Ticket Types
+      description: Returns all public ticket-type data for the provided event
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+  "/api/v1/events/{eventId}/ticket-types":
+    get:
+      tags[1]: Ticket Types
+      description: Returns all ticket-types for the provided event
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        eventId,path,The event id,integer
+      responses:
+        "200":
+          description: success
+    post:
+      tags[1]: Ticket Types
+      summary: Adds a new ticket type to the event
+      description: Create a new ticke type
+      produces[1]: application/json
+      parameters[2]:
+        - name: eventId
+          in: path
+          description: The event id
+          type: integer
+        - name: inputFileds
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeCreateParamObject
+      responses:
+        "200":
+          description: success
+  "/api/v1/ticket-types/{ticketTypeId}":
+    get:
+      tags[1]: Ticket Types
+      description: Returns the details provided ticket type
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        ticketTypeId,path,The ticket type id,integer
+      responses:
+        "200":
+          description: success
+  "/api/v1/ticket-types/{ticketTypeId}/update":
+    post:
+      tags[1]: Ticket Types
+      summary: Modifies a ticket type by its id
+      description: Modifies a new ticke type
+      produces[1]: application/json
+      parameters[2]:
+        - name: ticketTypeId
+          in: path
+          description: The ticket type id
+          type: integer
+        - name: inputFileds
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeCreateParamObject
+      responses:
+        "200":
+          description: success
+  "/api/v1/ticket-types/{ticketTypeId}/archive":
+    post:
+      tags[1]: Ticket Types
+      summary: Deletes a ticket type by its id
+      description: Deletes a ticke type
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        ticketTypeId,path,The ticket type id,integer
+      responses:
+        "200":
+          description: success
+  "/api/v1/ticket-types/{ticketTypeId}/attendee-questions":
+    get:
+      tags[1]: Ticket Types
+      summary: List attendee questions
+      description: Returns all attendee info for ticket checkout including waiver status and ticket questions
+      produces[1]: application/json
+      parameters[1]{name,in,description,type}:
+        ticketTypeId,path,The ticket type id,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+  "/api/v1/ticket-types/{ticketTypeId}/add-questions":
+    post:
+      tags[1]: Ticket Types
+      summary: Attach questions to an ticket type as attendee questions
+      description: Attach questions to an ticket type as attendee questions
+      produces[1]: application/json
+      parameters[2]:
+        - name: ticketTypeId
+          in: path
+          description: The ticket type id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeQuestionsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/ticket-types/{ticketTypeId}/remove-questions":
+    post:
+      tags[1]: Ticket Types
+      summary: Remove questions from a ticket type
+      description: Remove questions to an ticket type
+      produces[1]: application/json
+      parameters[2]:
+        - name: ticketTypeId
+          in: path
+          description: The ticket type id
+          type: integer
+        - name: inputFields
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeQuestionsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/ticket-types/{ticketTypeId}/add-tags":
+    post:
+      tags[1]: Ticket Types
+      summary: Add tags to a ticket type
+      description: Add tags to a ticket type
+      produces[1]: application/json
+      parameters[2]:
+        - name: ticketTypeId
+          in: path
+          description: The ticket type id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeTagsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/ticket-types/{ticketTypeId}/remove-tags":
+    post:
+      tags[1]: Ticket Types
+      summary: Remove tags from a ticket type
+      description: Remove tags to a ticket type
+      produces[1]: application/json
+      parameters[2]:
+        - name: ticketTypeId
+          in: path
+          description: The ticket type id
+          type: integer
+        - name: requestData
+          in: body
+          schema:
+            "$ref": #/definitions/TicketTypeTagsList
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/SingleApiResponseObject
+  "/api/v1/tokens":
+    post:
+      tags[1]: Tokens
+      summary: Generates tokens
+      description: Generates a token that must be used for all write operations
+      produces[1]: application/json
+      parameters[1]:
+        - name: publicKey
+          in: body
+          schema:
+            "$ref": #/definitions/TokenCreateParamObject
+      responses:
+        "200":
+          description: success
+  "/api/v1/tokens/without-key":
+    post:
+      tags[1]: Tokens
+      summary: Generates tokens
+      description: Generates a token that can be used for login operations
+      produces[1]: application/json
+      parameters[1]:
+        - name: publicKey
+          in: body
+          schema:
+            "$ref": #/definitions/TokenCreateParamObjectWithoutKey
+      responses:
+        "200":
+          description: success
+  "/api/v1/waivers":
+    get:
+      tags[1]: Waivers
+      summary: Returns a list of waivers
+      description: Returns a list of waivers.
+      produces[1]: application/json
+      parameters[2]{name,in,description,type}:
+        limit,query,Limit returned results,integer
+        offset,query,Offset returned results,integer
+      responses:
+        "200":
+          description: success
+          schema:
+            "$ref": #/definitions/ListApiResponseObject
+definitions:
+  AffiliateCreateParamsObject:
+    title: AffiliateCreateParamsObject
+    required[4]: emailAddress,name,alias,password
+    properties:
+      emailAddress:
+        default: ""
+      name:
+        default: ""
+      alias:
+        default: ""
+      password:
+        default: ""
+      parentPromoter:
+        default: ""
+      eventLimits:
+        description: Separate event IDs with a comma or | character
+        default: ""
+  AffiliateUpdateParamsObject:
+    title: AffiliateUpdateParamsObject
+    properties:
+      email:
+        default: ""
+      name:
+        default: ""
+      alias:
+        default: ""
+      password:
+        default: ""
+      parentPromoter:
+        default: ""
+      eventLimits:
+        description: Separate event IDs with a comma or | character
+        default: ""
+  ListApiResponseObject:
+    title: ListApiResponseObject
+    required[2]: status,data
+    properties:
+      status:
+        type: boolean
+      data:
+        type: object
+      count:
+        type: integer
+      message:
+        type: string
+      limit:
+        type: integer
+      offset:
+        type: integer
+  SingleApiResponseObject:
+    title: SingleApiResponseObject
+    required[2]: status,data
+    properties:
+      status:
+        type: boolean
+      data:
+        type: object
+      message:
+        type: string
+  StatusApiResponseObject:
+    title: StatusApiResponseObject
+    required[2]: status,data
+    properties:
+      status:
+        type: boolean
+      message:
+        type: string
+  CategoryCreateParamsObject:
+    title: CategoryCreateParamsObject
+    required[1]: title
+    properties:
+      title:
+        default: categoryTitle
+  CheckinTicketParamsObject:
+    title: CheckinTicketParamsObject
+    required[2]: barcode,eventIds
+    properties:
+      barcode:
+        type: string
+        default: ""
+      eventIds:
+        type: array
+        items:
+          type: integer
+      ticketTypeIds:
+        type: array
+        items:
+          type: integer
+      bibNumber:
+        type: string
+        default: ""
+      chipNumber:
+        type: string
+        default: ""
+  SignWaiverParamsObject:
+    title: SignWaiverParamsObject
+    required[4]: ticketId,waiverId,textSignature,svgSignature
+    properties:
+      ticketId:
+        type: integer
+      waiverId:
+        type: integer
+      textSignature:
+        type: string
+      svgSignature:
+        type: string
+      dayOfWaiver:
+        type: boolean
+        default: false
+  ClaimTicketParamsObject:
+    title: ClaimTicketParamsObject
+    required[1]: ticketId
+    properties:
+      ticketId:
+        type: integer
+      claimantUserId:
+        type: string
+      claimantEmailAddress:
+        type: string
+      forPurchaser:
+        type: integer
+      externalMembershipId:
+        type: string
+  UpdateClaimTicketParamsObject:
+    title: UpdateClaimTicketParamsObject
+    required[2]: ticketId,claimantEmailAddress
+    properties:
+      ticketId:
+        type: integer
+      claimantEmailAddress:
+        type: string
+  UpdateForPurchaserParamsObject:
+    title: UpdateForPurchaserParamsObject
+    required[2]: ticketId,forPurchaser
+    properties:
+      ticketId:
+        type: integer
+      forPurchaser:
+        type: integer
+  UpdateExternalMembershipIdParamsObject:
+    title: UpdateExternalMembershipIdParamsObject
+    required[2]: ticketId,externalMembershipId
+    properties:
+      ticketId:
+        type: integer
+      externalMembershipId:
+        type: integer
+  SaveBibNumberData:
+    title: SaveBibNumberData
+    required[2]: ticketId,bibNumber
+    properties:
+      ticketId:
+        type: integer
+      bibNumber:
+        type: string
+  SaveChipNumberData:
+    title: SaveChipNumberData
+    required[2]: ticketId,chipNumber
+    properties:
+      ticketId:
+        type: integer
+      chipNumber:
+        type: string
+  SetPriceData:
+    title: SetPriceData
+    required[2]: ticketId,price
+    properties:
+      ticketId:
+        type: integer
+      price:
+        type: number
+  BasicTicketData:
+    title: BasicTicketData
+    required[1]: ticketId
+    properties:
+      ticketId:
+        type: integer
+  UpgradeStateData:
+    title: UpgradeStateData
+    required[2]: ticketId,upgraded
+    properties:
+      ticketId:
+        type: integer
+      upgraded:
+        type: boolean
+  TransferStateData:
+    title: TransferStateData
+    required[2]: ticketId,transferred
+    properties:
+      ticketId:
+        type: integer
+      transferred:
+        type: boolean
+  CreateOrderBasicInfo:
+    title: CreateOrderBasicInfo
+    required[3]: emailAddress,firstName,lastName
+    properties:
+      cartId:
+        type: string
+      promoCode:
+        type: string
+      emailAddress:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      address:
+        type: string
+      address2:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zip:
+        type: string
+      externalId:
+        type: string
+  CreateOrderAttendeeAddress:
+    title: CreateOrderAttendeeAddress
+    properties:
+      address:
+        type: string
+      address2:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+      country:
+        type: string
+  CreateOrderTicket:
+    title: CreateOrderTicket
+    required[1]: ticketTypeId
+    properties:
+      ticketTypeId:
+        type: integer
+      partyMember:
+        type: string
+      partyMemberLastName:
+        type: string
+      partyMemberEmail:
+        type: string
+      partyMemberBirthMonth:
+        type: integer
+      partyMemberBirthDay:
+        type: integer
+      partyMemberBirthYear:
+        type: integer
+      partyMemberGender:
+        type: string
+      notForPurchaser:
+        type: integer
+      externalMembershipId:
+        type: string
+      attendeeAddress:
+        type: object
+        "$ref": #/definitions/CreateOrderAttendeeAddress
+  CreateOrderShippingOption:
+    title: CreateOrderShippingOption
+    required[2]: ticketTypeId,shippingOptionId
+    properties:
+      ticketTypeId:
+        type: integer
+      shippingOptionId:
+        type: integer
+  CreateOrderCard:
+    title: CreateOrderCard
+    properties:
+      expirationDate:
+        type: string
+        example: 05/2030
+      number:
+        type: integer
+        example: "4242424242424242"
+      cvv:
+        type: integer
+        example: "123"
+      stripeToken:
+        type: string
+      squareCardToken:
+        type: string
+      stripePaymentIntentId:
+        type: string
+      sezzlePayment:
+        type: boolean
+        default: false
+      globalPayTokenId:
+        type: string
+  CreateOrderSezzle:
+    title: CreateOrderSezzle
+    properties:
+      cardPan:
+        type: integer
+        example: "4242424242424242"
+      cardExpMonth:
+        type: string
+        example: "05"
+      cardExpYear:
+        type: string
+        example: "2030"
+      cardCvv:
+        type: integer
+        example: "123"
+  CreateOrderData:
+    title: CreateOrderData
+    required[4]: basicInfo,tickets,fees,paymentMethod
+    properties:
+      emailReceipt:
+        type: integer
+        enum[2]: "1","0"
+      cartId:
+        type: string
+      paymentMethod:
+        type: string
+        enum[4]: credit,cash,coinPayments,sezzle
+      detachPaymentMethod:
+        type: boolean
+        default: false
+      basicInfo:
+        type: object
+        "$ref": #/definitions/CreateOrderBasicInfo
+      tickets:
+        type: array
+        items:
+          "$ref": #/definitions/CreateOrderTicket
+      shippingOptions:
+        type: array
+        items:
+          "$ref": #/definitions/CreateOrderShippingOption
+      card:
+        type: object
+        "$ref": #/definitions/CreateOrderCard
+      sezzle:
+        type: object
+        "$ref": #/definitions/CreateOrderSezzle
+      sendWaiverEmails:
+        type: boolean
+      flagAsDeleted:
+        type: boolean
+        default: false
+  DescribeOrderData:
+    title: DescribeOrderData
+    required[1]: tickets
+    properties:
+      cartId:
+        type: string
+      paymentMethod:
+        type: string
+        enum[4]: credit,cash,coinPayments,sezzle
+      basicInfo:
+        type: object
+        "$ref": #/definitions/CreateOrderBasicInfo
+      tickets:
+        type: array
+        items:
+          "$ref": #/definitions/CreateOrderTicket
+      shippingOptions:
+        type: array
+        items:
+          "$ref": #/definitions/CreateOrderShippingOption
+      addOnsTotal:
+        type: number
+  UpdateTicketAttendeeData:
+    title: UpdateTicketAttendeeData
+    properties:
+      emailAddress:
+        default: ""
+      firstName:
+        default: ""
+      lastName:
+        default: ""
+      country:
+        default: ""
+      address:
+        default: ""
+      address2:
+        default: ""
+      city:
+        default: ""
+      state:
+        default: ""
+      zip:
+        default: ""
+      birthDay:
+        default: ""
+      birthMonth:
+        default: ""
+      birthYear:
+        default: ""
+      gender:
+        default: ""
+      phone:
+        default: ""
+      company:
+        default: ""
+      title:
+        default: ""
+      externalMembershipId:
+        default: ""
+  UpdateOrderFeeData:
+    title: UpdateOrderFeeData
+    properties:
+      serviceFeeAmount:
+        type: number
+      thirdPartyFeeAmount:
+        type: number
+      processingFeeAmount:
+        type: number
+  QuestionAnswerData:
+    title: QuestionAnswerData
+    required[1]: questionId
+    properties:
+      questionId:
+        type: integer
+      answerText:
+        type: string
+      answerId:
+        type: integer
+      addOnCharge:
+        type: number
+  UpdateOrderAnswerData:
+    title: UpdateOrderAnswerData
+    properties:
+      orderAnswers:
+        type: array
+        items:
+          "$ref": #/definitions/QuestionAnswerData
+  UpdateTicketAnswerData:
+    title: UpdateTicketAnswerData
+    properties:
+      ticketAnswers:
+        type: array
+        items:
+          "$ref": #/definitions/QuestionAnswerData
+  TicketCustomFieldData:
+    title: TicketCustomFieldData
+    required[2]: name,value
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+  CustomerCreateParamsObject:
+    title: CustomerCreateParamsObject
+    required[3]: emailAddress,firstName,lastName
+    properties:
+      updateIfExists:
+        default: false
+      emailAddress:
+        default: emailAddress
+      firstName:
+        default: firstName
+      lastName:
+        default: lastName
+      country:
+        default: ""
+      address:
+        default: ""
+      address2:
+        default: ""
+      city:
+        default: ""
+      state:
+        default: ""
+      zip:
+        default: ""
+      billingCountry:
+        default: ""
+      billingAddress:
+        default: ""
+      billingAddress2:
+        default: ""
+      billingCity:
+        default: ""
+      billingState:
+        default: ""
+      billingZip:
+        default: ""
+      birthDay:
+        default: ""
+      birthMonth:
+        default: ""
+      birthYear:
+        default: ""
+      phone:
+        default: ""
+      gender:
+        default: ""
+      externalId:
+        default: ""
+  CustomerUpdateParamsObject:
+    title: CustomerUpdateParamsObject
+    properties:
+      emailAddress:
+        default: ""
+      firstName:
+        default: ""
+      lastName:
+        default: ""
+      country:
+        default: ""
+      address:
+        default: ""
+      address2:
+        default: ""
+      city:
+        default: ""
+      state:
+        default: ""
+      zip:
+        default: ""
+      billingCountry:
+        default: ""
+      billingAddress:
+        default: ""
+      billingAddress2:
+        default: ""
+      billingCity:
+        default: ""
+      billingState:
+        default: ""
+      billingZip:
+        default: ""
+      birthDay:
+        default: ""
+      birthMonth:
+        default: ""
+      birthYear:
+        default: ""
+      phone:
+        default: ""
+      gender:
+        default: ""
+      externalId:
+        default: ""
+  CheckForAccountObject:
+    title: CheckForAccountObject
+    properties:
+      dontCreateUnregisteredUser:
+        default: "false"
+      emailAddress:
+        default: ""
+      firstName:
+        default: ""
+      lastName:
+        default: ""
+      externalId:
+        default: ""
+  EventCreateParamsObject:
+    title: EventCreateParamsObject
+    required[9]: eventName,eventSlug,timezone,eventStartDate,eventStartTime,eventEndDate,eventEndTime,eventCutoffDate,eventCutoffTime
+    properties:
+      name:
+        default: eventName
+      slug:
+        default: event-name
+      externalId:
+        type: string
+        default: ""
+      processorId:
+        type: integer
+      timezone:
+        type: string
+        default: America/Los_Angeles
+      startDate:
+        type: string
+        default: year-month-day
+      startTime:
+        type: string
+        default: "00:00 AM"
+      endDate:
+        type: string
+        default: year-month-day
+      endTime:
+        type: string
+        default: "00:00 AM"
+      cutOffDate:
+        type: string
+        default: year-month-day
+      cutOffTime:
+        type: string
+        default: "00:00 AM"
+      onSale:
+        type: boolean
+        default: "0"
+      onSaleDate:
+        type: string
+        default: "year-month-day 00:00 AM"
+      hideDate:
+        type: boolean
+        default: "0"
+      hideTime:
+        type: boolean
+        default: "0"
+      listImageUrl:
+        type: string
+        default: ""
+      detailsImageUrl:
+        type: string
+        default: ""
+      description:
+        type: string
+        default: ""
+      shortDescription:
+        type: string
+        default: ""
+      category:
+        type: string
+        default: ""
+      published:
+        type: boolean
+        default: "0"
+      venue:
+        type: string
+        default: ""
+      venueAddressLine1:
+        type: string
+        default: ""
+      venueAddressLine2:
+        type: string
+        default: ""
+      venueCity:
+        type: string
+        default: ""
+      venueState:
+        type: string
+        default: ""
+      venueZip:
+        type: string
+        default: ""
+      venueCountry:
+        type: string
+        default: ""
+      showVenue:
+        type: integer
+        default: ""
+      showVenueAddressLine1:
+        type: integer
+        default: ""
+      showVenueAddressLine2:
+        type: integer
+        default: ""
+      showVenueCity:
+        type: integer
+        default: ""
+      showVenueState:
+        type: integer
+        default: ""
+      showVenueCountry:
+        type: integer
+        default: ""
+      latitude:
+        type: integer
+        default: ""
+      longitude:
+        type: integer
+        default: ""
+      customBuyButton:
+        type: string
+        default: ""
+      customDisclaimer:
+        type: string
+        default: ""
+      showStartDate:
+        type: boolean
+        default: "1"
+      showStartTime:
+        type: boolean
+        default: "0"
+      showEndDate:
+        type: boolean
+        default: "1"
+      showEndTime:
+        type: boolean
+        default: "0"
+      waiverId:
+        type: integer
+        default: "0"
+      dayOfWaiverId:
+        type: integer
+        default: "0"
+      showUpcomingPriceRuleOnModal:
+        type: integer
+        default: "0"
+      showCurrentPriceRuleNextToPrice:
+        type: integer
+        default: "0"
+      payeeCompany:
+        type: string
+        default: ""
+      payeeContact:
+        type: string
+        default: ""
+      seoEventType:
+        type: string
+        default: ""
+      performer:
+        type: string
+        default: ""
+      supportContact1:
+        type: string
+        default: ""
+      supportEmailContact:
+        type: string
+        default: ""
+      supportContact2:
+        type: string
+        default: ""
+      volunteerEmailContact:
+        type: string
+        default: ""
+  EventQuestionsList:
+    title: EventQuestionsList
+    required[1]: questionIds
+    properties:
+      questionIds:
+        type: array
+        items:
+          type: integer
+  EventCategoriesList:
+    title: EventCategoriesList
+    required[1]: tags
+    properties:
+      categoryIds:
+        type: array
+        items:
+          type: integer
+  EventTagsList:
+    title: EventTagsList
+    required[1]: tags
+    properties:
+      tags:
+        type: array
+        items:
+          type: string
+  AdditionalContentCreateParamObject:
+    title: AdditionalContentCreateParamObject
+    required[4]: title,content,location,published
+    properties:
+      title:
+        type: string
+      content:
+        type: string
+      location:
+        type: string
+        default: mainColumn
+      published:
+        type: integer
+        default: "1"
+  PriceRuleCreateDatedParamObject:
+    title: PriceRuleCreateDatedParamObject
+    required[1]: description
+    properties:
+      description:
+        type: string
+      startDate:
+        description: "YYYY-MM-DD HH:MM"
+        type: string
+      endDate:
+        description: "YYYY-MM-DD HH:MM"
+        type: string
+  PriceRuleCreateQuantityParamObject:
+    title: PriceRuleCreateQuantityParamObject
+    required[1]: description
+    properties:
+      description:
+        type: string
+  TicketTypePriceRuleLinkObject:
+    title: TicketTypePriceRuleLinkObject
+    required[1]: description
+    properties:
+      priceRuleId:
+        type: integer
+      ticketTypeId:
+        type: integer
+      newPrice:
+        type: number
+      quantity:
+        type: integer
+  OrganizerCreateParamObject:
+    title: OrganizerCreateParamObject
+    required[2]: name,email
+    properties:
+      name:
+        default: ""
+      email:
+        default: ""
+      alias:
+        type: string
+        default: ""
+      parent:
+        type: integer
+        default: ""
+      password:
+        type: string
+        default: ""
+      sendWelcomeEmail:
+        type: boolean
+        default: "true"
+      generatePassword:
+        type: boolean
+        default: "true"
+  OrganizerUpdateParamObject:
+    title: OrganizerUpdateParamObject
+    required[2]: name,email
+    properties:
+      name:
+        default: ""
+      email:
+        default: ""
+      password:
+        type: string
+        default: ""
+      alias:
+        type: string
+        default: ""
+      parent:
+        type: integer
+        default: ""
+  AddEventsParamObject:
+    title: AddEventsParamObject
+    required[1]: events
+    properties:
+      events:
+        type: array
+        items:
+          type: integer
+  QuestionCreateUpdateParamObject:
+    title: QuestionCreateUpdateParamObject
+    required[2]: name,question
+    properties:
+      name:
+        default: ""
+      question:
+        default: ""
+      type:
+        type: string
+        default: ""
+      required:
+        type: integer
+        default: ""
+      defaultAnswer:
+        type: integer
+        default: ""
+      enablePrice:
+        type: integer
+        default: "true"
+      enableQuantity:
+        type: integer
+        default: "true"
+      displayAs:
+        description: "valid values are 'checkbox', 'radio', 'select' and 'searchSelect'"
+        type: string
+        default: ""
+  AddAnswerParamsObject:
+    title: AddAnswerParamsObject
+    required[1]: answer
+    properties:
+      answer:
+        type: string
+      addOnAmount:
+        type: number
+      ordering:
+        type: integer
+  SaveCartTicketType:
+    title: SaveCartTicketType
+    required[2]: typeId,quantity
+    properties:
+      typeId:
+        type: integer
+      quantity:
+        type: integer
+      waveTimeId:
+        type: integer
+  SaveCartData:
+    title: SaveCartData
+    required[2]: cartId,ticketTypes
+    properties:
+      cartId:
+        type: string
+      ticketTypes:
+        type: array
+        items:
+          "$ref": #/definitions/SaveCartTicketType
+  DeleteCartData:
+    title: DeleteCartData
+    required[1]: cartId
+    properties:
+      cartId:
+        type: string
+  TeamCreateParamsObject:
+    title: TeamCreateParamsObject
+    required[2]: teamName,eventId
+    properties:
+      teamName:
+        default: ""
+      eventId:
+        default: ""
+  TeamUpdateParamsObject:
+    title: TeamUpdateParamsObject
+    properties:
+      teamName:
+        default: ""
+  TeamMemberActionParamsObject:
+    title: TeamMemberActionParamsObject
+    properties:
+      ticketId:
+        default: ""
+  TeamEmailList:
+    title: TeamEmailList
+    required[1]: teamEmails
+    properties:
+      teamEmails:
+        type: array
+        items:
+          type: string
+  TicketTypeCreateParamObject:
+    title: TicketTypeCreateParamObject
+    required[3]: name,price,quantity
+    properties:
+      name:
+        type: string
+      quantity:
+        type: integer
+      quantityMaximum:
+        type: integer
+      quantityMinimum:
+        type: integer
+      price:
+        type: number
+      description:
+        type: string
+      faceValue:
+        type: number
+      status:
+        type: string
+        default: notOnSale
+      newShippingSelect:
+        type: integer
+      chargeTax:
+        type: boolean
+      taxAmount:
+        type: number
+      taxType:
+        description: percent or dollar
+        type: string
+      taxName:
+        type: string
+      chargeGratuity:
+        type: boolean
+      gratuityAmount:
+        type: number
+      gratuityType:
+        description: percent or dollar
+        type: string
+      gratuityName:
+        type: string
+      customReceiptText:
+        type: string
+      blockPromoCodes:
+        type: boolean
+      hideInFrontend:
+        type: boolean
+      notOnSaleText:
+        type: string
+      customFields:
+        type: object
+  TicketTypeQuestionsList:
+    title: TicketTypeQuestionsList
+    required[1]: questionIds
+    properties:
+      questionIds:
+        type: array
+        items:
+          type: integer
+  TicketTypeTagsList:
+    title: TicketTypeTagsList
+    required[1]: tags
+    properties:
+      tags:
+        type: array
+        items:
+          type: string
+  TokenCreateParamObject:
+    title: TokenCreateParamObject
+    properties:
+      userName:
+        type: string
+        default: ""
+      password:
+        type: string
+        default: ""
+      publicKey:
+        type: string
+        default: ""
+      publicKeySlug:
+        type: string
+        default: ""
+  TokenCreateParamObjectWithoutKey:
+    title: TokenCreateParamObjectWithoutKey
+    properties:
+      userName:
+        type: string
+        default: ""
+      password:
+        type: string
+        default: ""
+tags[21]{name,description}:
+  Access Packages,API endpoint for access package interaction
+  Affiliates,API endpoint for affiliate information
+  Categories,API endpoint for categories interaction
+  Tickets,API endpoints for ticket related tasks
+  Orders,API endpoint for creating and getting orders
+  Customers,API endpoint for customers interaction
+  Event,API endpoint for Event interaction
+  Fees,API endpoint for fee interaction
+  Organizers,API endpoint for organizer interaction
+  Participant Info Settings,API endpoint for participant settings
+  Promo Codes,API endpoint for promo code interaction
+  Questions,API endpoint for question interaction
+  Receipts,API endpoint for receipts interaction
+  Reports,API endpoint for report interaction
+  Settings,API endpoint for settings interaction
+  Shipping methods,API endpoint for shipping method types
+  Shopping Cart,API endpoint for shopping cart interaction
+  Teams,API endpoint for team interaction
+  Ticket Types,API endpoint for ticket types interaction
+  Tokens,Token generator
+  Waivers,API endpoint for waiver interaction

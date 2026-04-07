@@ -1,0 +1,123 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: deployment-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 15
+    outputs:
+      build-artifact: ${{ steps.artifact.outputs.path }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  test:
+    name: Run Tests
+    runs-on: [self-hosted, Linux, X64]
+    needs: build
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  migrate-staging:
+    name: Database Migration (Staging)
+    runs-on: [self-hosted, Linux, X64]
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+    environment:
+      name: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: [self-hosted, Linux, X64]
+    needs: migrate-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  approval-gate:
+    name: Wait for Production Approval
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production-approval
+    steps:
+      - name: Waiting for approval
+        run: echo "Waiting..."
+
+  migrate-production:
+    name: Database Migration (Production)
+    runs-on: [self-hosted, Linux, X64]
+    needs: approval-gate
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: [self-hosted, Linux, X64]
+    needs: migrate-production
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  verify:
+    name: Verify Production
+    runs-on: [self-hosted, Linux, X64]
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    steps:
+      - name: Check health
+        run: echo "Verifying..."
+
+  cleanup:
+    name: Cleanup
+    runs-on: [self-hosted, Linux, X64]
+    needs: [deploy-production, verify]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Remove artifacts
+        run: echo "Cleaning up..."

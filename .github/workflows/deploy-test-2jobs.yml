@@ -1,0 +1,22 @@
+name: Test Deploy with Two Jobs and Environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Build step
+        run: echo "Building..."
+
+  deploy:
+    name: Deploy to Staging
+    runs-on: [self-hosted, Linux, X64]
+    needs: build
+    environment:
+      name: staging
+    steps:
+      - name: Deploy step
+        run: echo "Deploying..."
