@@ -14,8 +14,6 @@ build/
 # Misc
 .DS_Store
 *.pem
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -27,7 +25,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Editor directories and files
-.vscode/
 .idea/
 *.suo
 *.ntvs*
@@ -37,3 +34,7 @@ yarn-error.log*
 
 /generated/prisma
 .vercel
+temp_auto_push.bat
+temp_interactive_push.bat
+branch_structure.json
+config.bat
